@@ -39,10 +39,16 @@ def hotel1():
         Nama_Hotel = request.args.get('Nama_Hotel')
         Bintang = request.args.get('Bintang')
         # Klasifikasi_Hotel = request.args.get('Klasifikasi_Hotel')
-        # Alamat_Hotel = request.args.get('Alamat_Hotel')
+        Alamat_Hotel = request.args.get('Alamat_Hotel')
         # Jumlah_Kamar = request.args.get('Jumlah_Kamar')
         if (Nama_Hotel and Bintang):
             query = "SELECT * FROM hotel WHERE Nama_Hotel LIKE '%{}%' AND Bintang LIKE '%{}%' ".format(Nama_Hotel, Bintang)
+            cursor.execute(query)
+            data = cursor.fetchall()
+            return jsonify(data)
+        
+        elif(Alamat_Hotel):
+            query = "SELECT * FROM Alamat_Hotel WHERE Alamat_Hotel LIKE '%{}%' ".format(Bintang)
             cursor.execute(query)
             data = cursor.fetchall()
             return jsonify(data)
