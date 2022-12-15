@@ -132,7 +132,7 @@ def manipulateDb():
     for hotel in hotelData:
         coor = getLatLong(hotel['Alamat_Hotel'])
         if (coor != {}):
-            cursor.execute('UPDATE hotel SET latitude=%s, longitude=%s WHERE id=%s', (coor['latitude'], coor['longitude'], hotel['id']))
+            cursor.execute('UPDATE hotel SET latitude=%s, longitude=%s WHERE id>237', (coor['latitude'], coor['longitude'], hotel['id']))
             mysql.connection.commit()
         else:
             print('lat long NULL', hotel["id"], hotel["Nama_Hotel"])
