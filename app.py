@@ -5,6 +5,8 @@ from auth import auth, jsonFormatArray, jsonFormat, tokenKey, dateFormat, mail
 from datetime import datetime, timedelta
 import googlemaps
 from key import API_KEY
+import math
+import requests
 
 
 app = Flask(__name__)
@@ -39,11 +41,12 @@ def hotel():
 
 @app.route('/hotel', methods=['GET', 'POST'])
 def hotel1():
-    print()
     cursor = mysql.connection.cursor()
     if (request.method == 'GET'):
         Nama_Hotel = request.args.get('Nama_Hotel')
         Bintang = request.args.get('Bintang')
+        id = request.args.get('Id')
+        print(Nama_Hotel,Bintang,id)
         # Klasifikasi_Hotel = request.args.get('Klasifikasi_Hotel')
         Alamat_Hotel = request.args.get('Alamat_Hotel')
         # Jumlah_Kamar = request.args.get('Jumlah_Kamar')
@@ -74,6 +77,35 @@ def hotel1():
             data = jsonFormatArray(cursor)
 
             return jsonify(data)
+
+        elif(id):
+            query = "SELECT * FROM hotel WHERE id={} ".format(id)
+            cursor.execute(query)
+            data = jsonFormat(cursor)
+            print(data)
+
+            fnbData = getFnbData()
+            fnbList = []
+            payload = {"hotel":data}
+
+            for item in fnbData:
+                if (item['titik_koordinat']):
+                    titik = item['titik_koordinat']
+                    lat1 = (titik.split(',')[0])
+                    long1 = (titik.split(', ')[1])
+                    print(float(data['latitude']), float(data['longitude']), float(lat1), float(long1))
+                    if (not isOverOneKm(float(data['latitude']), float(data['longitude']), float(lat1), float(long1))):
+                        print("TESTTT MASUKK")
+                        fnbList.append(item)
+
+
+            if (fnbList != []):
+                payload = {
+                    "hotel": data,
+                    "fnb_terdekat": fnbList
+                }
+
+            return jsonify(payload)
 
         else:
             cursor = mysql.connection.cursor()
@@ -176,6 +208,39 @@ def jsonFormat(cursor):
     res = (dict(zip(headers, item)))
 
   return res
+
+def getFnbData():
+    response = requests.get('http://20.213.139.144/fnb')
+
+    data = response.json()
+    return data
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    # Convert latitude and longitude to spherical coordinates in radians.
+    rlat1 = math.radians(lat1)
+    rlon1 = math.radians(lon1)
+    rlat2 = math.radians(lat2)
+    rlon2 = math.radians(lon2)
+
+    # Compute the Haversine distance
+    dlon = rlon2 - rlon1
+    dlat = rlat2 - rlat1
+    a = math.sin(dlat / 2)**2 + math.cos(rlat1) * math.cos(rlat2) * math.sin(dlon / 2)**2
+    c = 2 * math.asin(math.sqrt(a))
+
+    # Convert the distance from radians to kilometers
+    km = 6371 * c
+
+    return km
+
+def isOverOneKm(lat1, lon1, lat2, lon2):
+    distance = haversine(lat1, lon1, lat2, lon2)
+    if distance <= 1.0:
+        return(False)
+    return(True)
+        
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=105)
