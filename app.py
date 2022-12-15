@@ -187,20 +187,20 @@ def hotel2(id):
 
         return jsonify({"messages": "Data Berhasil Dihapus"}), 202
 
-@app.route('/dev/getlatlong', methods=['GET'])
-def manipulateDb():
-    cursor = mysql.connection.cursor()
+# @app.route('/dev/getlatlong', methods=['GET'])
+# def manipulateDb():
+#     cursor = mysql.connection.cursor()
     
-    cursor.execute('SELECT * FROM hotel')
-    hotelData = jsonFormatArray(cursor)
+#     cursor.execute('SELECT * FROM hotel')
+#     hotelData = jsonFormatArray(cursor)
 
-    for hotel in hotelData:
-        coor = getLatLong(hotel['Alamat_Hotel'])
-        if (coor != {}):
-            cursor.execute('UPDATE hotel SET latitude=%s, longitude=%s WHERE id>237', (coor['latitude'], coor['longitude'], hotel['id']))
-            mysql.connection.commit()
-        else:
-            print('lat long NULL', hotel["id"], hotel["Nama_Hotel"])
+#     for hotel in hotelData:
+#         coor = getLatLong(hotel['Alamat_Hotel'])
+#         if (coor != {}):
+#             cursor.execute('UPDATE hotel SET latitude=%s, longitude=%s WHERE id>237', (coor['latitude'], coor['longitude'], hotel['id']))
+#             mysql.connection.commit()
+#         else:
+#             print('lat long NULL', hotel["id"], hotel["Nama_Hotel"])
 
 @app.route('/dev/createcol', methods=['GET'])
 def createCol():
