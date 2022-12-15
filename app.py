@@ -11,9 +11,9 @@ app.register_blueprint(auth)
 
 app.config["SECRET_KEY"]= "secret"
 
-app.config['MYSQL_HOST'] = '34.101.159.97'
+app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'vixell'
 app.config['MYSQL_DB'] = 'hotel_api'
 # app.config['MYSQL_UNIX_SOCKET'] = '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock'
 
