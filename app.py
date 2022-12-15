@@ -36,7 +36,6 @@ mail.init_app(app)
 
 @app.route('/', methods=['GET'])
 def hotel():
-    getLatLong()
     return "BUTUH INFORMASI?"
 
 @app.route('/hotel', methods=['GET', 'POST'])
@@ -46,6 +45,13 @@ def hotel1():
         Nama_Hotel = request.args.get('Nama_Hotel')
         Bintang = request.args.get('Bintang')
         id = request.args.get('Id')
+        re = request.args.get('Type')
+        resto = 0
+        cafe = 0
+        warung = 0
+        rm = 0
+        ayce = 0
+        dll = 0
         print(Nama_Hotel,Bintang,id)
         # Klasifikasi_Hotel = request.args.get('Klasifikasi_Hotel')
         Alamat_Hotel = request.args.get('Alamat_Hotel')
@@ -89,13 +95,27 @@ def hotel1():
             payload = {"hotel":data}
 
             for item in fnbData:
+    
                 if (item['titik_koordinat']):
                     titik = item['titik_koordinat']
                     lat1 = (titik.split(',')[0])
                     long1 = (titik.split(', ')[1])
                     print(float(data['latitude']), float(data['longitude']), float(lat1), float(long1))
                     if (not isOverOneKm(float(data['latitude']), float(data['longitude']), float(lat1), float(long1))):
-                        print("TESTTT MASUKK")
+                
+                        if (item['kategori'] == 'Restoran'):
+                            resto += 1
+                        elif (item['kategori'] == 'Cafe'):
+                            cafe += 1
+                        elif (item['kategori'] == 'Warung'):
+                            warung += 1
+                        elif (item['kategori'] == 'Rumah Makan'):
+                            rm += 1
+                        elif (item['kategori'] == 'AYCE'):
+                            ayce += 1
+                        elif (item['kategori'] == 'DLL'):
+                            dll += 1
+    
                         fnbList.append(item)
 
 
@@ -103,6 +123,19 @@ def hotel1():
                 payload = {
                     "hotel": data,
                     "fnb_terdekat": fnbList
+                }
+            
+            if (re == 'kategori'):
+                payload = {
+                    "hotel": data,
+                    "jumlah": {
+                        "Restoran": resto,
+                        "Cafe": cafe,
+                        "Warung": warung,
+                        "Rumah Makan": rm,
+                        "AYCE": ayce,
+                        "DLL": dll
+                    }
                 }
 
             return jsonify(payload)
@@ -177,16 +210,16 @@ def createCol():
     mysql.connection.commit()
 
 
-def getLatLong(street):
-    gmaps_key = googlemaps.Client(key=API_KEY)
-    g = gmaps_key.geocode(street)
-    lat = g[0]["geometry"]["location"]["lat"]
-    long = g[0]["geometry"]["location"]["lng"]
-    if (lat and long):
-        print('Latitude: ', lat, ', Longitude: ', long, str(lat+long))
-        return ({"latitude": lat, "longitude": long})
-    else: 
-        return {}
+# def getLatLong(street):
+#     gmaps_key = googlemaps.Client(key=API_KEY)
+#     g = gmaps_key.geocode(street)
+#     lat = g[0]["geometry"]["location"]["lat"]
+#     long = g[0]["geometry"]["location"]["lng"]
+#     if (lat and long):
+#         print('Latitude: ', lat, ', Longitude: ', long, str(lat+long))
+#         return ({"latitude": lat, "longitude": long})
+#     else: 
+#         return {}
 
 def jsonFormatArray(cursor):
   headers = [x[0] for x in cursor.description]
@@ -236,7 +269,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 def isOverOneKm(lat1, lon1, lat2, lon2):
     distance = haversine(lat1, lon1, lat2, lon2)
-    if distance <= 1.0:
+    if distance <= 1:
         return(False)
     return(True)
         
